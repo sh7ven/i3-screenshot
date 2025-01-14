@@ -1,0 +1,119 @@
+#! /usr/bin/sh
+
+: '
+TODO:
+- multi monitor capturing
+- curl flags (secret, retention time etc)
+- support for different image hosting 
+'
+
+if [ -n "$SUDO_USER" ] ; then
+	HHOME=/home/$(who am i | awk '{print $1}')
+
+else
+	HHOME=$HOME
+
+fi
+
+VERBOSE=0
+VFLAG=
+UPLOAD=0
+DEBUG=1
+
+SERVICE="https://0x0.st"
+SPATH=$HHOME/Pictures/i3-screenshots
+
+upload() {
+	echo "$1 $2"
+	if [ $1 -ne 0 ] ; then
+		if [ "$VERBOSE" -ne 0 ] ; then
+			VFLAG="-v"
+		fi
+
+		curl $VFLAG -F'file=@'"$2"'' $SERVICE
+	fi
+}
+
+cap_full() {
+	local date=$(date)
+	local save="$SPATH/"$date".png"
+
+	maim | tee "$save" | xclip -sel c -t image/png
+
+	upload $1 "$save"
+}
+
+cap_window() {
+	local date=$(date)
+	local save="$SPATH/"$date".png"
+	
+	maim -i $(xdotool getactivewindow) | tee "$save" | xclip -sel c -t image/png
+
+	upload $1 "$save"
+}
+
+cap_sel() {
+	local date=$(date);	
+	local save="$SPATH/$date.png";
+
+	maim -s | tee "$save" | xclip -sel c -t image/png
+	
+	upload $1 "$save"
+}
+
+
+# process miscellaneous options
+if [ -n "$2" ] ; then 
+	while [ "$#" -ne 1 ] ; do
+		case $2 in 
+			-u | --upload)
+				UPLOAD=1
+				;;
+
+			-v | --verbose)
+				VERBOSE=1
+				;;
+		esac
+
+		set -- "${@:1:1}" "${@:3}"
+	done
+fi
+
+
+if [ -n "$1" ]; then
+	case $1 in
+		-h | --help)
+			echo -e "USAGE: ./i3-screenshot [TYPE] [OPTIONS]\n"
+
+			echo "TYPE:"
+			echo "--window 	-w		-- capture a particular window."
+			echo "--full		-f		-- capture the entire screen. (:0)"
+			echo -e "--selection	-s		-- select a rectangle to capture.\n\n"
+
+			echo "OPTIONS:"
+			echo "--upload 	-u		-- upload the image to a hosting service for easy sharing."
+			echo -e "--service			-- (TODO) image hosting service"
+			echo "--verbose	-v 		-- make the curl operations verbose"
+
+			exit 0
+			;;
+
+		-w | --window)
+			cap_window $UPLOAD
+
+			exit 0
+			;;
+
+		-f | --full)
+			cap_full $UPLOAD
+
+			exit 0
+			;;
+
+		-s | --selection)
+			cap_sel $UPLOAD
+
+			exit 0
+			;;
+	esac
+fi
