@@ -2,6 +2,8 @@
 simple command-line utility to take screenshots on i3wm. 
 can upload the screenshot to an image hosting service for easy sharing.
 
+**PS**: it uploads to [0x0.st](https://0x0.st) by default.
+
 ## Installation
 ```bash
 git clone https://github.com/sh7ven/i3-screenshot
