@@ -11,6 +11,11 @@ cd i3-screenshot
 ./install.sh
 ```
 
+Dependencies:
+- [`maim`](https://github.com/naelstrof/maim)
+- [`xclip`](https://github.com/astrand/xclip)
+- [`curl`](https://github.com/curl/curl) (optional)
+
 ## Usage
 ```
 USAGE: ./i3scrot [TYPE] [OPTIONS]
